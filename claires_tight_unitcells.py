@@ -14,7 +14,8 @@ hbar_eVs = param['constants']['hbar_eVs']
 e = param['constants']['e']
 prec = param['precision']
 
-inputs = np.loadtxt(param['inputs'],skiprows=1)
+inputs = np.loadtxt(param['inputs'],skiprows=1)*1E-7
+
 rhomb_centers = inputs[:,0:2]
 dip_centers = inputs[:,2:4]
 D_l_vecs = inputs[:,4:6]
@@ -124,13 +125,11 @@ def interate():
 
         count = 0
         while (np.abs((eigval_hist[0] - eigval_hist[1]))  > 10**(-prec)) and (np.linalg.norm((np.abs(eigvec_hist[:,0] - eigvec_hist[:,1])) > 10**(-prec))):
-            print 'enter'
             eigval_thisround = eigval_hist[0]/hbar_eVs
 
             if count > 100: 
                 denom = ( eigval_hist[2] - eigval_hist[1] ) - ( eigval_hist[1] - eigval_hist[0] )
                 eigval_thisround = eigval_hist[2] - ( eigval_hist[2] - eigval_hist[1] )**2 / denom / hbar_eVs
-
 
             k = (eigval_thisround*np.sqrt(eps_b))/c
             w,v,H = make_H(k=k)

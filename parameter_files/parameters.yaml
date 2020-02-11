@@ -1,6 +1,6 @@
-precision: 5
+precision: 1
 
-inputs: 'inputs_trimer_0210.txt'
+inputs: 'inputs_dimer_0210.txt'
 
 n_b: 1.
 
