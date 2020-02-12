@@ -13,64 +13,57 @@ c = param['constants']['c']
 hbar_eVs = param['constants']['hbar_eVs']
 
 inputs = np.loadtxt(param['inputs'],skiprows=1)
-rhomb_centers = inputs[:,0:2]
-dip_centers = inputs[:,2:4]
+rhomb_centers = inputs[:,0:2]*1E-7
+dip_centers = inputs[:,2:4]*1E-7
 D_l_vecs = inputs[:,4:6]
 D_s_vecs = inputs[:,6:8]
 Q_vecs = inputs[:,8:10]
 numRhombs = len(inputs)/4
 
+total = interate()
+
 def seeVectors(mode):
-    total = interate()
-    w = total[:,0]
-    v = total[:,1:]
-
-    sph_ycoords = rhomb_centers[:,0]
-    sph_zcoords = rhomb_centers[:,1]
-
-    for rhomb_i in range(0, numRhombs-1):
-        DL_i = np.column_stack(( dip_centers[4*(rhomb_i) : 4*(rhomb_i)+4, :], D_l_vecs[4*(rhomb_i) : 4*(rhomb_i)+4, :] ))
-        DS_i = np.column_stack(( dip_centers[4*(rhomb_i) : 4*(rhomb_i)+4, :], D_s_vecs[4*(rhomb_i) : 4*(rhomb_i)+4, :] ))
-        Q_i  = np.column_stack(( dip_centers[4*(rhomb_i) : 4*(rhomb_i)+4, :], Q_vecs[4*(rhomb_i) : 4*(rhomb_i)+4, :] ))
-
-
-        print rhomb_i
-        mag_mode = v[mode,rhomb_i]*DL_i + v[mode,rhomb_i+1]*DS_i +v[mode,rhomb_i+2]*Q_i
-
-
-
-    ymin = min(sph_ycoords)-2E-5; ymax = max(sph_ycoords)+2E-5
-    zmin = min(sph_ycoords)-2E-5; zmax = max(sph_ycoords)+2E-5
-    
-    #plt.subplot(1,6,mode+1)
+    w = np.real(total[:,0])
+    v = np.real(total[:,1:])
+    sph_ycoords = dip_centers[:,0]
+    sph_zcoords = dip_centers[:,1]  
+   
+    plt.subplot(1,6,mode+1)
     ax = plt.gca()
     ax.set_aspect('equal', adjustable='box')
-
-    evalue = w[mode]
+    evalue = np.sqrt(np.real(w[mode]))*hbar_eVs
     plt.title('%.2f eV' % (evalue), fontsize=18)
-    plt.scatter(sph_ycoords, sph_ycoords,c='black',s=10)
+    plt.scatter(sph_ycoords, sph_zcoords,c='blue',s=50)
 
-    plt.quiver(sph_ycoords, sph_zcoords, mag_mode[:,0], mag_mode[:,1], pivot='mid', 
-        width=0.1, #shaft width in arrow units 
-        scale=1.55, 
-        headlength=4,
-        headwidth=5.8,
-        minshaft=4.1, 
-        minlength=.1)
-    # plt.xlim([ymin, ymax])
-    # plt.ylim([zmin, zmax])
+    for rhomb_i in range(0, numRhombs):
+        DL_i = D_l_vecs[4*(rhomb_i) : 4*(rhomb_i)+4, :]
+        DS_i = D_s_vecs[4*(rhomb_i) : 4*(rhomb_i)+4, :]
+        Q_i  = Q_vecs[4*(rhomb_i) : 4*(rhomb_i)+4, :]
+        mag_mode = (v[mode,3*rhomb_i]*DL_i + v[mode,3*rhomb_i+1]*DS_i +v[mode,3*rhomb_i+2]*Q_i)
+
+        ymin = min(sph_ycoords)-1E-5; ymax = max(sph_ycoords)+1E-5
+        zmin = min(sph_zcoords)-1E-5; zmax = max(sph_zcoords)+1E-5
+        plt.quiver(sph_ycoords[4*rhomb_i : 4*rhomb_i+4], sph_zcoords[4*rhomb_i : 4*rhomb_i+4], mag_mode[:,0], mag_mode[:,1], pivot='mid', 
+            width=0.1, #shaft width in arrow units 
+            scale=3, 
+            headlength=4,
+            headwidth=5.,#5.8
+            minshaft=2., #4.1
+            minlength=.1)
+    plt.xlim([ymin, ymax])
+    plt.ylim([zmin, zmax])
     plt.yticks([])
     plt.xticks([])
-    plt.show()
+    #plt.show()
     return w, mag_mode
 
-seeVectors(mode=0)
-# fig = plt.figure(num=None, figsize=(12, 3), dpi=80, facecolor='w', edgecolor='k')   
+#seeVectors(mode=0)
 
-# for mode in range(0,6):
-#     seeVectors(mode=mode)
-#     print mode
-# plt.show()
+fig = plt.figure(num=None, figsize=(12, 3), dpi=80, facecolor='w', edgecolor='k')   
+for mode in range(0,6):
+    seeVectors(mode=mode)
+    print mode
+plt.show()
 
     
 # def seeFields(mode):

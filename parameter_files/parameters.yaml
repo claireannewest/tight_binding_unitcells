@@ -1,6 +1,6 @@
-precision: 1
+precision: 2
 
-inputs: 'inputs_dimer_0210.txt'
+inputs: 'parameter_files/inputs_dimer_0211.txt'
 
 n_b: 1.
 
