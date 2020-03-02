@@ -28,10 +28,12 @@ def seeVectors(mode):
     sph_ycoords = dip_centers[:,0]
     sph_zcoords = dip_centers[:,1]  
    
-    plt.subplot(1,6,mode+1)
+    plt.subplot(3,numRhombs,mode+1)
     ax = plt.gca()
     ax.set_aspect('equal', adjustable='box')
-    evalue = np.sqrt(np.real(w[mode]))*hbar_eVs
+    
+    evalue = w[mode]
+
     plt.title('%.2f eV' % (evalue), fontsize=18)
     plt.scatter(sph_ycoords, sph_zcoords,c='blue',s=50)
 
@@ -45,11 +47,11 @@ def seeVectors(mode):
         zmin = min(sph_zcoords)-1E-5; zmax = max(sph_zcoords)+1E-5
         plt.quiver(sph_ycoords[4*rhomb_i : 4*rhomb_i+4], sph_zcoords[4*rhomb_i : 4*rhomb_i+4], mag_mode[:,0], mag_mode[:,1], pivot='mid', 
             width=0.1, #shaft width in arrow units 
-            scale=3, 
-            headlength=4,
+            scale=1.5, 
+            headlength=5,
             headwidth=5.,#5.8
-            minshaft=2., #4.1
-            minlength=.1)
+            minshaft=4., #4.1
+            minlength=.01)
     plt.xlim([ymin, ymax])
     plt.ylim([zmin, zmax])
     plt.yticks([])
@@ -59,8 +61,8 @@ def seeVectors(mode):
 
 #seeVectors(mode=0)
 
-fig = plt.figure(num=None, figsize=(12, 3), dpi=80, facecolor='w', edgecolor='k')   
-for mode in range(0,6):
+fig = plt.figure(num=None, figsize=(6, 6), dpi=80, facecolor='w', edgecolor='k')   
+for mode in range(0,3*numRhombs):
     seeVectors(mode=mode)
     print mode
 plt.show()
@@ -75,7 +77,7 @@ plt.show()
 #     ymin = min(sphere_origins[:,0])-2E-5; ymax = max(sphere_origins[:,0])+2E-5
 #     zmin = min(sphere_origins[:,1])-2E-5; zmax = max(sphere_origins[:,1])+2E-5
 
-#     x = 200e-07; y = np.linspace(ymin, ymax, 51 ); z = np.linspace(zmin, zmax, 51 )
+#     x = 200e-07; y = np.linspace(ymin, ymax, 5 ,c1 ); z = np.linspace(zmin, zmax, 51 )
 #     x_grid, y_grid, z_grid = np.meshgrid(x, y, z)
 #     all_points = np.column_stack((np.ravel(x_grid), np.ravel(y_grid), np.ravel(z_grid)))
 

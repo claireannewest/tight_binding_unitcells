@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-filename = 'trimertogether'
+filename = 'dimer'
 
-coordinates = np.loadtxt(str('parameter_files/coords_')+str(filename)+str('.txt')) #outputs of make_pattern, the (x,y) of the center of each rhombus
-base_vectors = np.loadtxt(str('parameter_files/basevecs_')+str(filename)+str('.txt')) #outputs of make_pattern
+coordinates = np.loadtxt(str('coords_')+str(filename)+str('.txt')) #outputs of make_pattern, the (x,y) of the center of each rhombus
+base_vectors = np.loadtxt(str('basevecs_')+str(filename)+str('.txt')) #outputs of make_pattern
 coords_concat = coordinates
 coords_concat = np.concatenate((coords_concat, coordinates),axis=0) # concat to have same dimentions as corners
 corners_x = base_vectors[:,0]+coords_concat[:,0] # the x coord of 2 of the 4 corners of each rhombus
@@ -45,13 +45,18 @@ def findall_corners(): #given 2 of the 4 corners of each rhombus, find the other
 	for rhomb_i in range(0, numRhombs):
 		for corner_i in range(0,len(allcorners)):
 			if np.round(np.linalg.norm(allcorners[corner_i,:] - coords_concat[rhomb_i,:]), 5) == np.round(117.55705, 5):
+				## enters here if it's one of the short axis corners, i.e. distance from center is ~118 nm
+				print 'short'
 				corners_sorted[count,:] = allcorners[corner_i,:]
-				count = count+1
+				count = count + 1
 			if np.round(np.linalg.norm(allcorners[corner_i,:] - coords_concat[rhomb_i,:]), 5) == np.round(161.80339887, 5):
+				## enters here if it's one of the long axis corners, i.e. distance from center is ~162 nm
+				print 'long'
 				corners_sorted[count,:] = allcorners[corner_i,:]
-				count = count+1
+				count = count + 1
 	return corners_sorted
 
+findall_corners()
 
 def findeach_theta(): #find the rotation, theta of each rhombus, angle between long axis dipole, and vertical
 	thetas = []
@@ -73,28 +78,54 @@ def rotate_indmodes():
 	Ds_vec_dirs = np.zeros((len(allcorners), 2))
 	Q_vec_dirs = np.zeros((len(allcorners), 2))
 
-	dip_longaxis = np.loadtxt('parameter_files/rhomb_mode_DL.txt',skiprows=1)[:,2:4]
-	dip_shortaxis = np.loadtxt('parameter_files/rhomb_mode_DS.txt',skiprows=1)[:,2:4]
-	quad = np.loadtxt('parameter_files/rhomb_mode_Q.txt',skiprows=1)[:,2:4]
+	dip_long = np.loadtxt('rhomb_mode_DL.txt',skiprows=1)[:,2:4]
+	dip_short = np.loadtxt('rhomb_mode_DS.txt',skiprows=1)[:,2:4]
+	quad = np.loadtxt('rhomb_mode_Q.txt',skiprows=1)[:,2:4]
+
+	plt.subplot(2,1,1)
+	#plt.scatter(sphere_centers[:,0], sphere_centers[:,1])
+	plt.scatter(sphere_centers[0,0], sphere_centers[0,1], label='0')
+	plt.scatter(sphere_centers[1,0], sphere_centers[1,1], label='1')
+	plt.scatter(sphere_centers[2,0], sphere_centers[2,1], label='2')
+	plt.scatter(sphere_centers[3,0], sphere_centers[3,1], label='3')
+	plt.scatter(sphere_centers[4,0], sphere_centers[4,1], label='0')
+	plt.scatter(sphere_centers[5,0], sphere_centers[5,1], label='1')
+	plt.scatter(sphere_centers[6,0], sphere_centers[6,1], label='2')
+	plt.scatter(sphere_centers[7,0], sphere_centers[7,1], label='3')
+	plt.axis('equal')
+	plt.legend()
+	dlong = np.loadtxt('rhomb_mode_DL.txt',skiprows=1)*1E7
+	dshort = np.loadtxt('rhomb_mode_DS.txt',skiprows=1)*1E7
+	qquad = np.loadtxt('rhomb_mode_Q.txt',skiprows=1)*1E7
+
+	plt.subplot(2,1,2)
+	plt.scatter(dlong[0,0], dlong[0,1], label='0')
+	plt.scatter(dlong[1,0], dlong[1,1], label='1')
+	plt.scatter(dlong[2,0], dlong[2,1], label='2')
+	plt.scatter(dlong[3,0], dlong[3,1], label='3')
+
+
+	plt.axis('equal')
+
+	plt.legend()
+	plt.show()
 
 	for rhomb_i in range(0, numRhombs):
-
 		theta = thetas[rhomb_i]
-		Dl_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 0] = dip_longaxis[:,0]*np.cos(theta) - dip_longaxis[:,1]*np.sin(theta)
-		Dl_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 1] = dip_longaxis[:,0]*np.sin(theta) + dip_longaxis[:,1]*np.cos(theta)
+		Dl_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 0] = dip_long[:,0]*np.cos(theta) - dip_long[:,1]*np.sin(theta)
+		Dl_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 1] = dip_long[:,0]*np.sin(theta) + dip_long[:,1]*np.cos(theta)
 		
-		Ds_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 0] = dip_shortaxis[:,0]*np.cos(theta) - dip_shortaxis[:,1]*np.sin(theta)
-		Ds_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 1] = dip_shortaxis[:,0]*np.sin(theta) + dip_shortaxis[:,1]*np.cos(theta)
+		Ds_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 0] = dip_short[:,0]*np.cos(theta) - dip_short[:,1]*np.sin(theta)
+		Ds_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 1] = dip_short[:,0]*np.sin(theta) + dip_short[:,1]*np.cos(theta)
 		
 		Q_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 0] = quad[:,0]*np.cos(theta) - quad[:,1]*np.sin(theta)
 		Q_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 1] = quad[:,0]*np.sin(theta) + quad[:,1]*np.cos(theta)
  
 	return sphere_centers, Dl_vec_dirs, Ds_vec_dirs, Q_vec_dirs
-
-sphere_centers, Dl_vec_dirs, Ds_vec_dirs, Q_vec_dirs = rotate_indmodes()
-#print Dl_vec_dirs
+#rotate_indmodes()
 
 def plot_indmodes(whichmode):
+	sphere_centers, Dl_vec_dirs, Ds_vec_dirs, Q_vec_dirs = rotate_indmodes()
 	xcoord = sphere_centers[:,0]; ycoord = sphere_centers[:,1]; 	
 	if whichmode == 'D_l':
 		xvec = Dl_vec_dirs[:,0]; yvec = Dl_vec_dirs[:,1]
@@ -107,7 +138,7 @@ def plot_indmodes(whichmode):
 	plt.axis('equal')
 	plt.show()
 
-#plot_indmodes(whichmode='D_l')
+plot_indmodes(whichmode='Q')
 
 def final_writing():
 	sphere_centers, Dl_vec_dirs, Ds_vec_dirs, Q_vec_dirs = rotate_indmodes()
@@ -117,7 +148,7 @@ def final_writing():
 	final_write = np.column_stack((allcoords, sphere_centers, Dl_vec_dirs, Ds_vec_dirs, Q_vec_dirs))
 	print final_write.shape
 	### Writing time ###
-	file = open(str('inputs_')+str(filename)+str('_0211.txt'),'w')
+	file = open(str('inputs_')+str(filename)+str('_byhand_0220.txt'),'w')
 	file.write( 'Rhomb Center [nm]' + '\t' + '\t' + 'Dip Center [nm]' +  '\t' +  '\t' +  '\t' +'D_l [nm]' + '\t' +'D_s [nm]' + '\t' +'Q [nm]' + '\t' + '\n')
 	for j in range(0, len(final_write)):
 		file.write("%.3f" % final_write[j,:][0] + '\t' + "%.3f" % final_write[j,:][1] + '\t' +
@@ -128,7 +159,7 @@ def final_writing():
 	file.close()
 
 
-final_writing()
+#final_writing()
 
 
 
