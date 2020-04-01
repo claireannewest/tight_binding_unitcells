@@ -26,7 +26,7 @@ coordinates = np.concatenate((coordinates, coordinates),axis=0)
 corners_x = base_vectors[:,0]+coordinates[:,0]
 
 corners_y = base_vectors[:,1]+coordinates[:,1]
-print len(corners_y)
+
 ### find all corners ### 
 for i in range(0,len(corners_y)): 
 	if corners_y[i]-coordinates[i,1] == 0:
@@ -92,9 +92,9 @@ for i in range(0, 1):#len(allsides)):
 	# plt.arrow(allsides[i,0],allsides[i,1], shortaxis[i,0],
 	# 	shortaxis[i,1],head_width=10,color='purple')
 
-	print 'coords', coordinates[:,0].shape
-	print 'corners', allcorners_x
-	print 'corners', allcorners_y
+	print('coords', coordinates[:,0].shape)
+	print('corners', allcorners_x)
+	print('corners', allcorners_y)
 
 	plt.scatter(coordinates[:,0], coordinates[:,1],color='k')
 	plt.scatter(allcorners[:,0], allcorners[:,1], color='r')
