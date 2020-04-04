@@ -42,16 +42,16 @@ def findall_corners(): #given 2 of the 4 corners of each rhombus, find the other
 	### sort corners
 	corners_sorted = np.zeros((len(allcorners), 2))
 	count = 0
-	for rhomb_i in range(0, numRhombs):
+	for rhomb_i in range(0, int(numRhombs)):
 		for corner_i in range(0,len(allcorners)):
 			if np.round(np.linalg.norm(allcorners[corner_i,:] - coords_concat[rhomb_i,:]), 5) == np.round(117.55705, 5):
 				## enters here if it's one of the short axis corners, i.e. distance from center is ~118 nm
-				print 'short'
+				print('short')
 				corners_sorted[count,:] = allcorners[corner_i,:]
 				count = count + 1
 			if np.round(np.linalg.norm(allcorners[corner_i,:] - coords_concat[rhomb_i,:]), 5) == np.round(161.80339887, 5):
 				## enters here if it's one of the long axis corners, i.e. distance from center is ~162 nm
-				print 'long'
+				print('long')
 				corners_sorted[count,:] = allcorners[corner_i,:]
 				count = count + 1
 	return corners_sorted
@@ -61,7 +61,7 @@ findall_corners()
 def findeach_theta(): #find the rotation, theta of each rhombus, angle between long axis dipole, and vertical
 	thetas = []
 	allcorners = findall_corners()
-	for rhomb_i in range(0, numRhombs):
+	for rhomb_i in range(0, int(numRhombs)):
 		for corner_i in range(0, len(allcorners)):
 			if np.round(np.linalg.norm(allcorners[corner_i,:] - coords_concat[rhomb_i,:]), 5) == np.round(161.80339887, 5):
 				theta = np.pi - np.arctan2(allcorners[corner_i,0] - coords_concat[rhomb_i,0], allcorners[corner_i,1] - coords_concat[rhomb_i,1])
@@ -110,16 +110,16 @@ def rotate_indmodes():
 	plt.legend()
 	plt.show()
 
-	for rhomb_i in range(0, numRhombs):
+	for rhomb_i in range(0, int(numRhombs)):
 		theta = thetas[rhomb_i]
-		Dl_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 0] = dip_long[:,0]*np.cos(theta) - dip_long[:,1]*np.sin(theta)
-		Dl_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 1] = dip_long[:,0]*np.sin(theta) + dip_long[:,1]*np.cos(theta)
+		Dl_vec_dirs[int(rhomb_i*4) : int(rhomb_i*4+4), 0] = dip_long[:,0]*np.cos(theta) - dip_long[:,1]*np.sin(theta)
+		Dl_vec_dirs[int(rhomb_i*4) : int(rhomb_i*4+4), 1] = dip_long[:,0]*np.sin(theta) + dip_long[:,1]*np.cos(theta)
 		
-		Ds_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 0] = dip_short[:,0]*np.cos(theta) - dip_short[:,1]*np.sin(theta)
-		Ds_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 1] = dip_short[:,0]*np.sin(theta) + dip_short[:,1]*np.cos(theta)
+		Ds_vec_dirs[int(rhomb_i*4) : int(rhomb_i*4+4), 0] = dip_short[:,0]*np.cos(theta) - dip_short[:,1]*np.sin(theta)
+		Ds_vec_dirs[int(rhomb_i*4) : int(rhomb_i*4+4), 1] = dip_short[:,0]*np.sin(theta) + dip_short[:,1]*np.cos(theta)
 		
-		Q_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 0] = quad[:,0]*np.cos(theta) - quad[:,1]*np.sin(theta)
-		Q_vec_dirs[rhomb_i*4 : rhomb_i*4+4, 1] = quad[:,0]*np.sin(theta) + quad[:,1]*np.cos(theta)
+		Q_vec_dirs[int(rhomb_i*4) : int(rhomb_i*4+4), 0] = quad[:,0]*np.cos(theta) - quad[:,1]*np.sin(theta)
+		Q_vec_dirs[int(rhomb_i*4) : int(rhomb_i*4+4), 1] = quad[:,0]*np.sin(theta) + quad[:,1]*np.cos(theta)
  
 	return sphere_centers, Dl_vec_dirs, Ds_vec_dirs, Q_vec_dirs
 #rotate_indmodes()
@@ -138,7 +138,7 @@ def plot_indmodes(whichmode):
 	plt.axis('equal')
 	plt.show()
 
-plot_indmodes(whichmode='Q')
+plot_indmodes(whichmode='D_l')
 
 def final_writing():
 	sphere_centers, Dl_vec_dirs, Ds_vec_dirs, Q_vec_dirs = rotate_indmodes()
@@ -146,7 +146,7 @@ def final_writing():
 	for i in range(0, numRhombs):
 		allcoords[i*4 : i*(4)+4,:] = coordinates[i,:]
 	final_write = np.column_stack((allcoords, sphere_centers, Dl_vec_dirs, Ds_vec_dirs, Q_vec_dirs))
-	print final_write.shape
+	print(final_write.shape)
 	### Writing time ###
 	file = open(str('inputs_')+str(filename)+str('_byhand_0220.txt'),'w')
 	file.write( 'Rhomb Center [nm]' + '\t' + '\t' + 'Dip Center [nm]' +  '\t' +  '\t' +  '\t' +'D_l [nm]' + '\t' +'D_s [nm]' + '\t' +'Q [nm]' + '\t' + '\n')

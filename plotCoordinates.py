@@ -4,127 +4,163 @@ import yaml
 open_param_file = open('parameter_files/parameters.yaml')
 param = yaml.load(open_param_file)
 numparticles = 1
-
-coordinates = np.loadtxt('parameter_files/coords_trimerconcave.txt')
-base_vectors = np.loadtxt('parameter_files/basevecs_trimerconcave.txt')
-
-allcorners_x = []
-allcorners_y = []
-corners_this_iter_x = []
-corners_this_iter_y =[]
-allsides_x = []
-allsides_y = []
-longaxis_x = []
-longaxis_y = []
-shortaxis_x = []
-shortaxis_y = []
+filename='dimer'
+coordinates = np.loadtxt('parameter_files/coords_'+str(filename)+'.txt')
+base_vectors = np.loadtxt('parameter_files/basevecs_'+str(filename)+'.txt')
+numRhombs = len(coordinates)
 coordinates = np.concatenate((coordinates, coordinates),axis=0)
+### corners is organized: long axis rhomb 1, long axis rhomb 2 , ... , short axis rhomb 1, shortaxis rhomb 2, ...
+corners = base_vectors+coordinates
 
-# y1 = coordinates[1] + base_vectors[1]
-# x1 = coordinates[0] + base_vectors[0]
-
-corners_x = base_vectors[:,0]+coordinates[:,0]
-
-corners_y = base_vectors[:,1]+coordinates[:,1]
-
-### find all corners ### 
-for i in range(0,len(corners_y)): 
-	if corners_y[i]-coordinates[i,1] == 0:
-	 	m = 1e30
-	else:
-		m = -((corners_y[i]-coordinates[i,1])/(corners_x[i]-coordinates[i,0]))**-1
-	b = coordinates[i,1]-m*coordinates[i,0]
-	refl_x = ((1-m**2)*corners_x[i]+2*m*corners_y[i]-2*m*b)/(m**2+1)
-	refl_y = ((m**2-1)*corners_y[i]+2*m*corners_x[i]+2*b)/(m**2+1)
-	corner_this_iter_x = np.array([corners_x[i], refl_x])
-	corner_this_iter_y = np.array([corners_y[i], refl_y])
-	allcorners_x = np.append(corner_this_iter_x, allcorners_x)
-	allcorners_y = np.append(corner_this_iter_y, allcorners_y)
-allcorners = np.column_stack((allcorners_x, allcorners_y))
-
-# ### find all midpoints ### 
-# for i in range(0,len(allcorners_x)): 
-# 	for j in range(0,len(allcorners_x)): 
-# 		current_corner = np.array([allcorners_x[i], allcorners_y[i]])
-# 		next_corner = np.array([allcorners_x[j], allcorners_y[j]])
-# 		if np.abs(np.round(np.linalg.norm(current_corner - next_corner))) == 200:
-# 			side_x = (current_corner[0]+next_corner[0])/2
-# 			side_y = (current_corner[1]+next_corner[1])/2
-
-# 			allsides_x = np.append(side_x, allsides_x) 
-# 			allsides_y = np.append(side_y, allsides_y) 
-# allsides = np.unique(np.column_stack((allsides_x, allsides_y)),axis=0)
-
-# ### find all dipole directions ###
-
-# for i in range(0,len(allsides)):
-# 	for j in range(0,len(allsides)):
-# 		difference = np.round(np.linalg.norm(allsides[i,:]-allcorners[j,:]))
-# 		if difference == 100:
-# 			longaxis = allcorners[j,:] - allsides[i,:]
-		# 	longaxis_x = np.append(longaxis[0], longaxis_x)
-		# 	longaxis_y = np.append(longaxis[1], longaxis_y)
-		# 	if allcorners[j,0]-allsides[i,0] == 0:
-		# 		m_shortaxis = 0
-		# 	else:
-		# 		m_shortaxis = -((allcorners[j,1]-allsides[i,1])/(allcorners[j,0]-allsides[i,0]))**(-1)
-
-# 			b_shortaxis = allsides[i,1]-m_shortaxis*allsides[i,0]
-# 			print b_shortaxis
-# 			shortaxis_x = np.append(coordinates[0]-allsides[i,0], shortaxis_x)
-# 			shortaxis_y = np.append((m_shortaxis*coordinates[0] + b_shortaxis)-allsides[i,1], shortaxis_y)
-# 			break
-
-# longaxis = np.column_stack((longaxis_x, longaxis_y))
-# shortaxis = np.column_stack((shortaxis_x, shortaxis_y))
-
-
-# fig = plt.figure(1, figsize=[3.,3.])
-# ax = plt.gca()
-# plt.xlim([-400,400])
-# plt.ylim([-400,400])
-# ax.set_aspect('equal', adjustable='box')
-
-for i in range(0, 1):#len(allsides)):
-	# plt.arrow(allsides[i,0],allsides[i,1], longaxis[i,0], 
-	# 	longaxis[i,1],head_width=10,color='k')
-
-	# plt.arrow(allsides[i,0],allsides[i,1], shortaxis[i,0],
-	# 	shortaxis[i,1],head_width=10,color='purple')
-
-	print('coords', coordinates[:,0].shape)
-	print('corners', allcorners_x)
-	print('corners', allcorners_y)
-
-	plt.scatter(coordinates[:,0], coordinates[:,1],color='k')
-	plt.scatter(allcorners[:,0], allcorners[:,1], color='r')
-#	plt.scatter(allsides[i,0], allsides[i,1], color='b')
-
-	plt.xlim([-500,500])
-	plt.ylim([-500,500])
+def plot_og(which):
+	plt.scatter(coordinates[:,0], coordinates[:,1], color='black')
+	plt.scatter(corners[:,0], corners[:,1], color='red')
+	plt.scatter(coordinates[which,0], coordinates[which,1], color='green')
+	plt.scatter(corners[which,0], corners[which,1], color='green')
 	plt.show()
 
-# # file = open('inputs_prolates.txt','w')
-# # rhomb_centers = np.vstack((coordinates,coordinates,coordinates,coordinates,coordinates,coordinates,coordinates,coordinates))
-# # allsides = np.vstack((allsides, allsides))
-# # all_dip_directions = np.vstack((longaxis, shortaxis))
-# # file.write( 'Rhomb Center [nm]' + '\t' + 'Dip Center [nm]' + '\t' + '\t' + '\t' + 'Dipole directions [nm]' + '\n')
-# # for j in range(0, len(rhomb_centers)):
-# # 	file.write("%.5f" % rhomb_centers[j,:][0] + '\t' + "%.5f" % rhomb_centers[j,:][1] + '\t' +
-# # 			   "%.5f" % allsides[j,:][0] + '\t' + "%.5f" % allsides[j,:][1] + '\t' + 
-# # 				"%.5f" % all_dip_directions[j,:][0] + '\t' + "%.5f" % all_dip_directions[j,:][1] + '\n')
-# # file.close()
+def find_allcorners(): ### find all corners ### 
+	new_corners = np.zeros((int(2*len(corners)), 2))
+	dupl_coords = np.zeros((int(2*len(corners)), 2))
 
-# file = open('inputs_spheres.txt','w')
-# rhomb_centers = np.vstack((coordinates,coordinates,coordinates,coordinates,coordinates,coordinates,coordinates,coordinates))
-# allcorners = np.vstack((allcorners, allcorners))
-# all_dip_directions = np.vstack((longaxis, shortaxis))
-# file.write( 'Rhomb Center [nm]' + '\t' + 'Dip Center [nm]' + '\t' + '\t' + '\t' + 'Dipole directions [nm]' + '\n')
-# for j in range(0, len(rhomb_centers)):
-# 	file.write("%.5f" % rhomb_centers[j,:][0] + '\t' + "%.5f" % rhomb_centers[j,:][1] + '\t' +
-# 			   "%.5f" % allcorners[j,:][0] + '\t' + "%.5f" % allcorners[j,:][1] + '\t' + 
-# 				"%.5f" % all_dip_directions[j,:][0] + '\t' + "%.5f" % all_dip_directions[j,:][1] + '\n')
-# file.close()
+	for i in range(0, 2*numRhombs):
+		length = 2*np.linalg.norm(corners[i,:]-coordinates[i,:])
+		theta = np.arctan2(coordinates[i,1]-corners[i,1],coordinates[i,0]-corners[i,0] )
+		#print(theta)
+		new_corners[2*i, :] = corners[i,:]
+		new_corners[2*i+1,0] = length*np.cos(theta)+corners[i,0]
+		new_corners[2*i+1,1] = length*np.sin(theta)+corners[i,1]
+
+		dupl_coords[2*i, :] = coordinates[i,:]
+		dupl_coords[2*i+1, :] = coordinates[i,:]
+	return new_corners, dupl_coords 
+
+def plot_allcorners(which):
+	new_corners, dupl_coords = find_allcorners()
+	plt.scatter(coordinates[:,0], coordinates[:,1], s=100,color='black')
+	plt.scatter(new_corners[:,0], new_corners[:,1], color='red')
+	plt.scatter(dupl_coords[which,0], dupl_coords[which,1], color='green')
+	plt.scatter(new_corners[which,0], new_corners[which,1], color='green')
+	plt.quiver(new_corners[which,0], new_corners[which,1], -new_corners[which,0]+new_corners[which+1,0], -new_corners[which,1]+ new_corners[which+1,1], scale=1 )
+	plt.axis('equal')
+	plt.show()
+
+def find_shrunk_corners(dl=62, ds=70.5):
+	### Originally, Xuan's code made:
+	### side length = 200 nm, long axis diameter = 324 nm, short axis diameter = 235 nm
+	### But to fit modes, I'll pull in the corners by dl and ds
+	corners, rhomb_cent = find_allcorners()
+	theta = np.arctan2(rhomb_cent[:,1]-corners[:,1],rhomb_cent[:,0]-corners[:,0])
+	shrunk_x = np.zeros((len(theta))); shrunk_y = np.zeros((len(theta)))
+
+	shrunk_x[0:2*numRhombs] = dl*np.cos(theta[0:2*numRhombs])+corners[0:2*numRhombs,0]
+	shrunk_y[0:2*numRhombs] = dl*np.sin(theta[0:2*numRhombs])+corners[0:2*numRhombs,1]
+	shrunk_x[2*numRhombs:] = ds*np.cos(theta[2*numRhombs:])+corners[2*numRhombs:,0]
+	shrunk_y[2*numRhombs:] = ds*np.sin(theta[2*numRhombs:])+corners[2*numRhombs:,1]
+
+	shrunk = np.column_stack((shrunk_x, shrunk_y))
+	return corners, rhomb_cent, shrunk, theta
+
+def rotate_normalmodes():
+	og_corners, rhomb_cent, shrunk, theta = find_shrunk_corners()
+	rotate_l = np.zeros((len(shrunk), 2))
+	rotate_s = np.zeros((len(shrunk), 2))
+	rotate_q = np.zeros((len(shrunk), 2))
+	fix_rotate_q = np.zeros((len(shrunk), 2))
+
+	mode_l = np.loadtxt('../tb_quasicrystal_4sph/output_files/normal_mode_0.txt',skiprows=1)*1E7
+	mode_s = np.loadtxt('../tb_quasicrystal_4sph/output_files/normal_mode_1.txt',skiprows=1)*1E7
+	mode_q = np.loadtxt('../tb_quasicrystal_4sph/output_files/normal_mode_2.txt',skiprows=1)*1E7
+
+	for rhombi in range(0, numRhombs):
+		xdiff = shrunk[2*rhombi+1,0]-shrunk[2*rhombi,0]
+		ydiff = shrunk[2*rhombi+1,1]-shrunk[2*rhombi,1]
+		theta = np.pi-np.arctan2(xdiff, ydiff)
+	#############################################
+		## L ##
+		original = mode_l[3,2:4]
+		rotate_l[int(2*rhombi),0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_l[int(2*rhombi),1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+
+		original = mode_l[2,2:4]
+		rotate_l[int(2*rhombi)+1,0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_l[int(2*rhombi)+1,1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+
+		original = mode_l[0,2:4]
+		rotate_l[int(2*rhombi+2*numRhombs),0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_l[int(2*rhombi+2*numRhombs),1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+
+		original = mode_l[1,2:4]
+		rotate_l[int(2*rhombi+2*numRhombs+1),0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_l[int(2*rhombi+2*numRhombs+1),1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+
+		## S ##
+		original = mode_s[3,2:4]
+		rotate_s[int(2*rhombi),0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_s[int(2*rhombi),1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+		original = mode_s[2,2:4]
+		rotate_s[int(2*rhombi)+1,0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_s[int(2*rhombi)+1,1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+		original = mode_s[0,2:4]
+		rotate_s[int(2*rhombi+2*numRhombs),0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_s[int(2*rhombi+2*numRhombs),1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+		original = mode_s[1,2:4]
+		rotate_s[int(2*rhombi+2*numRhombs+1),0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_s[int(2*rhombi+2*numRhombs+1),1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+
+		## Q ##
+		original = mode_q[3,2:4]
+		rotate_q[int(2*rhombi),0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_q[int(2*rhombi),1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+		original = mode_q[2,2:4]
+		rotate_q[int(2*rhombi)+1,0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_q[int(2*rhombi)+1,1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+		original = mode_q[0,2:4]
+		rotate_q[int(2*rhombi+2*numRhombs),0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_q[int(2*rhombi+2*numRhombs),1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+		original = mode_q[1,2:4]
+		rotate_q[int(2*rhombi+2*numRhombs+1),0] = original[0]*np.cos(theta) - original[1]*np.sin(theta)
+		rotate_q[int(2*rhombi+2*numRhombs+1),1] = original[0]*np.sin(theta) + original[1]*np.cos(theta)
+
+	fix_rotate_q = rotate_q # this fixes the problem that I don't know what corner I'm grabbing. It only affects Q mode
+	for rhombi in range(0, numRhombs):
+		if np.cross(rotate_q[int(2*rhombi+2*numRhombs),:]+shrunk[int(2*rhombi+2*numRhombs),:], rotate_q[int(2*rhombi),:]+shrunk[int(2*rhombi),:]) <0:
+			fix_rotate_q[int(2*rhombi+2*numRhombs),:] = rotate_q[int(2*rhombi+2*numRhombs+1),:]
+			fix_rotate_q[int(2*rhombi+2*numRhombs+1),:] = -rotate_q[int(2*rhombi+2*numRhombs),:]
+
+	return og_corners, rhomb_cent, shrunk, rotate_l, rotate_s, fix_rotate_q
 
 
+def plot_shrunk(which_sph, which_mode):
+	og_corners, rhomb_cent, shrunk, rotate_l, rotate_s, rotate_q = rotate_normalmodes()
+	fig = plt.figure(1, figsize=[5.,5.])
+	ax = plt.gca()
+	ax.set_aspect('equal', adjustable='box')
+	plt.scatter(rhomb_cent[:,0], rhomb_cent[:,1], color='black')
+	plt.scatter(og_corners[:,0], og_corners[:,1], color='black')
+	plt.scatter(shrunk[:,0], shrunk[:,1], color='blue')
+	if which_mode == 'l': plt.quiver(shrunk[:,0], shrunk[:,1], rotate_l[:,0], rotate_l[:,1],scale=0.9)
+	if which_mode == 's': plt.quiver(shrunk[:,0], shrunk[:,1], rotate_s[:,0], rotate_s[:,1],scale=2.3)
+	if which_mode == 'q': plt.quiver(shrunk[:,0], shrunk[:,1], rotate_q[:,0], rotate_q[:,1],scale=2.4)
+	plt.scatter(rhomb_cent[which_sph,0], rhomb_cent[which_sph,1], color='green')
+	plt.scatter(og_corners[which_sph,0], og_corners[which_sph,1], color='green')
+	plt.scatter(shrunk[which_sph,0], shrunk[which_sph,1], color='green')
+	#print('dist from original corner', np.linalg.norm(og_corners[which_sph]-shrunk[which_sph]))
+	plt.show()
 
+def final_writing():
+	og_corners, rhomb_cent, shrunk, rotate_l, rotate_s, rotate_q = rotate_normalmodes()
+	final_write = np.column_stack((rhomb_cent, shrunk, rotate_l, rotate_s, rotate_q))
+
+	### Writing time ###
+	file = open(str('inputs_')+str(filename)+str('_0403.txt'),'w')
+	file.write( 'Rhomb Center [nm]' + '\t' + '\t' + 'Dip Center [nm]' +  '\t' +  '\t' +  '\t' +'L [nm]' + '\t' +'S [nm]' + '\t' +'Q [nm]' + '\t' + '\n')
+	for j in range(0, len(final_write)):
+		file.write("%.3f" % final_write[j,:][0] + '\t' + "%.3f" % final_write[j,:][1] + '\t' +
+				   "%.3f" % final_write[j,:][2] + '\t' + "%.3f" % final_write[j,:][3] + '\t' + 
+				   "%.5f" % final_write[j,:][4] + '\t' + "%.5f" % final_write[j,:][5] + '\t' + 
+				   "%.5f" % final_write[j,:][6] + '\t' + "%.5f" % final_write[j,:][7] + '\t' + 
+				   "%.5f" % final_write[j,:][8] + '\t' + "%.5f" % final_write[j,:][9] + '\n')
+	file.close()
+
+final_writing()
